@@ -1,0 +1,27 @@
+# Builds the release archives when a version tag is pushed (see .github/workflows/release.yml).
+version: 2
+
+builds:
+  - main: ./cmd/stringalize
+    binary: stringalize
+    env:
+      - CGO_ENABLED=0
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+
+archives:
+  # No version in the name, so .../releases/latest/download/<name> always works.
+  - name_template: "stringalize_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files: [LICENSE, README.md]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  disable: true
